@@ -1,0 +1,16 @@
+{
+  "name": "tliherorank-korean-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Korean translation extension for tliherorank.com, using tlidb.com's public i18n data.",
+  "scripts": {
+    "build:dictionary": "node scripts/build-dictionary.mjs && node scripts/build-hero-combos.mjs && node scripts/build-trait-nodes.mjs && node scripts/build-core-talents.mjs",
+    "build:icons": "node scripts/build-icons.mjs",
+    "verify": "node scripts/verify-extension.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
