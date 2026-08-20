@@ -4,6 +4,12 @@
 게임 용어와 UI를 한국어로 번역하는 크롬 확장 프로그램입니다. 번역 사전은
 [tlidb.com](https://tlidb.com/ko/)이 공개하는 다국어 데이터를 기준으로 자동 생성됩니다.
 
+## 커뮤니티 / 문의
+
+카카오톡 오픈채팅: https://open.kakao.com/o/gKyqLeJi
+
+버그 제보나 개선 요청은 [GitHub Issues](https://github.com/listil/tliherorank-korean-extension/issues)도 이용해 주세요.
+
 ## 설치 (개발자 모드로 로드)
 
 1. `chrome://extensions` 접속
