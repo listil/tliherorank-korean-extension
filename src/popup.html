@@ -2,13 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <title>TLI Hero Rank 한국어 번역</title>
+  <title>토치라이트 인피니트 한국 유저 도구</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <header>
-    <h1>TLI Hero Rank 한국어 번역</h1>
-    <p class="subtitle">tliherorank.com 전용</p>
+    <h1>토치라이트 인피니트 한국 유저 도구</h1>
+    <p class="subtitle">번역 · 바로가기 · VoraxRoom 카드 추천</p>
   </header>
 
   <section class="toggleRow">
@@ -26,6 +26,68 @@
     <div class="infoRow">
       <span>사전 항목 수</span>
       <strong id="entryCount">-</strong>
+    </div>
+  </section>
+
+  <section class="links">
+    <div class="linksTitle">바로가기</div>
+    <div class="tabBar" role="tablist">
+      <button class="tabBtn" data-tab="community" role="tab" aria-selected="true">커뮤니티</button>
+      <button class="tabBtn" data-tab="db" role="tab" aria-selected="false">DB/조회</button>
+      <button class="tabBtn" data-tab="tools" role="tab" aria-selected="false">도구</button>
+    </div>
+
+    <div class="tabPanel" data-panel="community">
+      <a class="linkRow" href="https://gall.dcinside.com/mgallery/board/lists/?id=torchlightinfinite" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">토치라이트 갤러리</span>
+        <span class="linkHint">디시인사이드 마이너 갤러리</span>
+      </a>
+      <a class="linkRow" href="https://game.naver.com/lounge/Torchlight_Infinite/home" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">토치라이트 공식 커뮤니티</span>
+        <span class="linkHint">네이버 게임 라운지</span>
+      </a>
+    </div>
+
+    <div class="tabPanel" data-panel="db" hidden>
+      <a class="linkRow" href="https://tliherorank.com/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">TLI Hero Rank</span>
+        <span class="linkHint">tliherorank.com (이 확장의 번역 대상)</span>
+      </a>
+      <a class="linkRow" href="https://tlidb.com/ko/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">토치라이트 DB</span>
+        <span class="linkHint">tlidb.com</span>
+      </a>
+      <a class="linkRow" href="https://mini-tlidb.winterer.workers.dev/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">미니 토치 DB</span>
+        <span class="linkHint">mini-tlidb.winterer.workers.dev</span>
+      </a>
+      <a class="linkRow" href="https://tlifarm.vesper-tli.workers.dev/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">파밍 집계 사이트</span>
+        <span class="linkHint">tlifarm.vesper-tli.workers.dev</span>
+      </a>
+      <a class="linkRow" href="https://torchlight.xd.com/pacts/#/play/aeterna/aeterna/great-void-boss-ticket" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">정령 드롭 효과 조회</span>
+        <span class="linkHint">torchlight.xd.com</span>
+      </a>
+    </div>
+
+    <div class="tabPanel" data-panel="tools" hidden>
+      <a class="linkRow" href="https://ttdiablo.com/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">TTDiablo (TTD download)</span>
+        <span class="linkHint">ttdiablo.com</span>
+      </a>
+      <a class="linkRow" href="https://github.com/listil/mttd/releases" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">mobileTTD (Android Only)</span>
+        <span class="linkHint">GitHub 릴리스</span>
+      </a>
+      <a class="linkRow" href="https://github.com/DarkHoza/TITrack-KR-Release/releases" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">TITrack-KR 버전</span>
+        <span class="linkHint">GitHub 릴리스</span>
+      </a>
+      <a class="linkRow" href="https://madstone290.github.io/VoraxRoom/" target="_blank" rel="noopener noreferrer">
+        <span class="linkName">블러드러스트 수술실 미니게임</span>
+        <span class="linkHint">방문 시 카드 추천 패널 자동 표시</span>
+      </a>
     </div>
   </section>
 

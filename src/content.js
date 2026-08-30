@@ -466,5 +466,5 @@
     setupLiveTooltipEnrichment();
   }
 
-  main().catch((err) => console.error("[TLI Hero Rank 한국어 번역]", err));
+  main().catch((err) => console.error("[TLI 도구 - tliherorank 번역]", err));
 })();

@@ -109,6 +109,89 @@ input:checked + .slider::before {
   color: var(--fg);
 }
 
+.links {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linksTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.tabBar {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: #171d2d;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.tabBtn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tabBtn:hover {
+  color: var(--fg);
+}
+
+.tabBtn[aria-selected="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tabPanel[hidden] {
+  display: none;
+}
+
+.linkRow {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #171d2d;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.linkRow:hover {
+  background: #1e2740;
+}
+
+.linkName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.linkHint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
 footer {
   margin-top: 8px;
   font-size: 11px;

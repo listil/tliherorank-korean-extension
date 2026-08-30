@@ -1,8 +1,15 @@
-# TLI Hero Rank 한국어 번역
+# 토치라이트 인피니트 한국 유저 도구
 
-[tliherorank.com](https://tliherorank.com/) (Torchlight Infinite 히어로 랭킹 사이트)의
-게임 용어와 UI를 한국어로 번역하는 크롬 확장 프로그램입니다. 번역 사전은
-[tlidb.com](https://tlidb.com/ko/)이 공개하는 다국어 데이터를 기준으로 자동 생성됩니다.
+Torchlight Infinite(토치라이트: 인피니트) 한국 유저를 위한 크롬 확장 프로그램입니다.
+
+- [tliherorank.com](https://tliherorank.com/) (히어로 랭킹 사이트)의 게임 용어와
+  UI를 한국어로 번역합니다. 번역 사전은 [tlidb.com](https://tlidb.com/ko/)이
+  공개하는 다국어 데이터를 기준으로 자동 생성됩니다.
+- 팝업에서 토치라이트 갤러리, 공식 커뮤니티, tlidb/미니 토치 DB 등 자주 쓰는
+  TLI 관련 사이트 바로가기를 탭으로 정리해 보여줍니다.
+- [VoraxRoom](https://madstone290.github.io/VoraxRoom/)(블러드러스트 수술실
+  미니게임 시뮬레이터) 방문 시, 예상 최종 활성이 가장 높은 선택지를 추천하는
+  패널을 자동으로 표시합니다.
 
 ## 커뮤니티 / 문의
 

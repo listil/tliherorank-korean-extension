@@ -8,7 +8,8 @@
     "build:dictionary": "node scripts/build-dictionary.mjs && node scripts/build-hero-combos.mjs && node scripts/build-trait-nodes.mjs && node scripts/build-core-talents.mjs",
     "build:icons": "node scripts/build-icons.mjs",
     "verify": "node scripts/verify-extension.mjs",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "sync:vorax": "node scripts/sync-vorax-recommender.mjs"
   },
   "devDependencies": {
     "playwright": "^1.62.1"

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TLI Hero Rank 한국어 번역 — 개인정보처리방침</title>
+<title>토치라이트 인피니트 한국 유저 도구 — 개인정보처리방침</title>
 <style>
   :root { color-scheme: light dark; }
   body {
@@ -31,13 +31,13 @@
 </head>
 <body>
 
-<h1>TLI Hero Rank 한국어 번역 — 개인정보처리방침</h1>
-<p class="muted">최종 수정일: 2026-08-20</p>
+<h1>토치라이트 인피니트 한국 유저 도구 — 개인정보처리방침</h1>
+<p class="muted">최종 수정일: 2026-08-30</p>
 
 <p>
-이 문서는 크롬 확장 프로그램 <strong>"TLI Hero Rank 한국어 번역"</strong>이 어떤 정보를
-다루는지 설명합니다. 결론부터 말씀드리면, <strong>이 확장 프로그램은 개인정보를
-수집하지 않습니다.</strong>
+이 문서는 크롬 확장 프로그램 <strong>"토치라이트 인피니트 한국 유저 도구"</strong>가
+어떤 정보를 다루는지 설명합니다. 결론부터 말씀드리면, <strong>이 확장 프로그램은
+개인정보를 수집하지 않습니다.</strong>
 </p>
 
 <h2>이 확장 프로그램이 하는 일</h2>
@@ -48,6 +48,12 @@
   <li>스킬/팩트스피릿 아이콘에 마우스를 올리면, 더 정확하고 완전한 설명을 보여주기 위해
     <a href="https://tlidb.com/" target="_blank" rel="noopener">tlidb.com</a>(Torchlight:
     Infinite 팬 위키)의 해당 항목 페이지를 그 순간에 불러옵니다.</li>
+  <li>툴바 팝업에서 Torchlight Infinite 관련 커뮤니티/DB/도구 사이트로 바로 이동할 수
+    있는 바로가기 목록을 보여줍니다 (모두 새 탭에서 여는 일반 링크입니다).</li>
+  <li><a href="https://madstone290.github.io/VoraxRoom/" target="_blank" rel="noopener">
+    madstone290.github.io/VoraxRoom</a>(블러드러스트 수술실 미니게임 시뮬레이터)에
+    접속하면, 화면에 보이는 선택지를 읽어 예상 최종 활성이 가장 높은 선택지를
+    브라우저 안에서 직접 계산해 추천 패널로 보여줍니다.</li>
 </ul>
 
 <h2>수집하는 정보</h2>
@@ -56,23 +62,29 @@
   <li>사용자를 식별하는 어떤 정보도 수집·저장·전송하지 않습니다.</li>
   <li>분석(analytics), 광고, 추적 스크립트를 포함하지 않습니다.</li>
   <li>자체 서버를 운영하지 않으며, 수집한 데이터를 보낼 곳 자체가 없습니다.</li>
+  <li>VoraxRoom 카드 추천 계산은 전부 사용자의 브라우저 안에서 로컬로 이루어지며,
+    어떤 서버에도 데이터를 전송하지 않습니다.</li>
 </ul>
 
 <h2>브라우저 권한 사용 목적</h2>
 <ul>
-  <li><code>storage</code>: 번역 켜기/끄기 설정 값 하나만 사용자의 브라우저(로컬)에
-    저장합니다. 이 값은 외부로 전송되지 않습니다.</li>
+  <li><code>storage</code>: 번역 켜기/끄기 설정, 마지막으로 본 바로가기 탭 등 사용자
+    설정 값만 사용자의 브라우저(로컬)에 저장합니다. 이 값은 외부로 전송되지 않습니다.</li>
   <li><code>tlidb.com</code> 접근 권한: 마우스오버 시 해당 게임 항목의 한국어 설명을
     가져오기 위한 용도로만 사용됩니다. 요청에는 페이지 이름(예: 스킬 이름) 외에
     사용자를 식별할 수 있는 정보가 포함되지 않습니다.</li>
+  <li><code>madstone290.github.io/VoraxRoom</code> 접근 권한: 카드 추천 패널을 표시하기
+    위해서만 사용되며, 이 사이트로/이 사이트에서 어떤 데이터도 외부로 전송하지
+    않습니다.</li>
 </ul>
 
 <h2>제3자 사이트와의 관계</h2>
 <p>
-이 확장 프로그램은 tliherorank.com, tlidb.com과 공식적으로 제휴되어 있지 않은
-비공식 개인 프로젝트입니다. 두 사이트 모두 Torchlight: Infinite 게임의 팬 제작
-사이트이며, 이 확장 프로그램은 그 화면 표시 방식만 클라이언트 측에서 바꿀 뿐,
-두 사이트의 서버나 데이터에 어떠한 변경도 가하지 않습니다.
+이 확장 프로그램은 tliherorank.com, tlidb.com, madstone290.github.io/VoraxRoom을
+비롯해 팝업에 링크된 사이트들과 공식적으로 제휴되어 있지 않은 비공식 개인
+프로젝트입니다. 모두 Torchlight: Infinite 게임과 관련된 공식/팬 제작 사이트이며,
+이 확장 프로그램은 그 화면 표시 방식만 클라이언트 측에서 바꾸거나 화면 정보를
+읽어 로컬로 계산할 뿐, 각 사이트의 서버나 데이터에 어떠한 변경도 가하지 않습니다.
 </p>
 
 <h2>문의</h2>
@@ -87,12 +99,17 @@
 <h1 style="font-size:1.2rem">Privacy Policy (English summary)</h1>
 <p>
 This browser extension does not collect, store, or transmit any personal data.
-It only reads and rewrites text on tliherorank.com to display Korean
-translations from a bundled dictionary, and on hover, fetches a public page
-from tlidb.com (a fan wiki) to show a fuller Korean description. No analytics,
-no tracking, no user identifiers are involved. The only locally stored value
-is a single on/off toggle for the translation feature (via
-<code>chrome.storage.local</code>), which never leaves the user's browser.
+It reads and rewrites text on tliherorank.com to display Korean translations
+from a bundled dictionary, and on hover, fetches a public page from tlidb.com
+(a fan wiki) to show a fuller Korean description. It also shows a popup
+shortcut list to other Torchlight Infinite community/tool sites (plain links,
+opened in a new tab), and on madstone290.github.io/VoraxRoom it reads the
+on-screen choices and computes a locally-recommended pick entirely inside the
+browser. No analytics, no tracking, no user identifiers are involved, and no
+data ever leaves the user's browser except the tlidb.com lookup described
+above. The only locally stored values are a few UI preferences (the
+translation on/off toggle and the last-viewed shortcut tab) via
+<code>chrome.storage.local</code>.
 </p>
 
 </body>
