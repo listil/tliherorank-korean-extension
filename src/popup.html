@@ -11,13 +11,6 @@
     <p class="subtitle">번역 · 바로가기 · VoraxRoom 카드 추천</p>
   </header>
 
-  <section class="info">
-    <div class="infoRow">
-      <span>사전 항목 수</span>
-      <strong id="entryCount">-</strong>
-    </div>
-  </section>
-
   <section class="links">
     <div class="linksTitle">바로가기</div>
     <div class="tabBar" role="tablist">
@@ -35,13 +28,20 @@
         <span class="linkName">토치라이트 공식 커뮤니티</span>
         <span class="linkHint">네이버 게임 라운지</span>
       </a>
+      <div class="linkRowWithSide">
+        <a class="linkRow" href="https://search.bilibili.com/all?keyword=%E7%81%AB%E7%82%AC" target="_blank" rel="noopener noreferrer">
+          <span class="linkName">빌리빌리</span>
+          <span class="linkHint">火炬 검색 · 중국 영상</span>
+        </a>
+        <a class="sideLink" href="https://chromewebstore.google.com/detail/vesper-korean-subtitle-ov/pjfjidldidopgpclekeelhmpngmakjjn" target="_blank" rel="noopener noreferrer" title="Vesper Korean Subtitle Overlay (Chrome 웹 스토어)">한국어 자막 ↗</a>
+      </div>
     </div>
 
     <div class="tabPanel" data-panel="db" hidden>
-      <div class="linkRowWithToggle">
+      <div class="linkRowWithSide">
         <a class="linkRow" href="https://tliherorank.com/" target="_blank" rel="noopener noreferrer">
           <span class="linkName">TLI Hero Rank</span>
-          <span class="linkHint">tliherorank.com</span>
+          <span class="linkHint">tliherorank.com · 사전 <strong id="entryCount">-</strong>개</span>
         </a>
         <label class="switch" title="한국어 번역 사용 (변경 후 페이지 새로고침 시 적용)">
           <input type="checkbox" id="enabledToggle" aria-label="TLI Hero Rank 한국어 번역 사용" />

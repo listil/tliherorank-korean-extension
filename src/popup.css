@@ -74,22 +74,6 @@ input:checked + .slider::before {
   transform: translateX(18px);
 }
 
-.info {
-  padding: 10px 0;
-  border-top: 1px solid var(--border);
-}
-
-.infoRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.infoRow strong {
-  color: var(--fg);
-}
-
 .links {
   padding: 10px 0;
   border-top: 1px solid var(--border);
@@ -161,10 +145,10 @@ input:checked + .slider::before {
   background: #1e2740;
 }
 
-/* A row that pairs a link with the translation switch; the switch sits beside
-   the <a> rather than inside it, since a control nested in a link would also
-   trigger navigation. */
-.linkRowWithToggle {
+/* A row that pairs a link with a side control (the translation switch, or a
+   small secondary link); the control sits beside the <a> rather than inside
+   it, since a control nested in a link would also trigger navigation. */
+.linkRowWithSide {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -174,14 +158,26 @@ input:checked + .slider::before {
   transition: background 0.15s ease;
 }
 
-.linkRowWithToggle:hover {
+.linkRowWithSide:hover {
   background: #1e2740;
 }
 
-.linkRowWithToggle .linkRow {
+.linkRowWithSide .linkRow {
   flex: 1;
   min-width: 0;
   background: transparent;
+}
+
+.sideLink {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sideLink:hover {
+  text-decoration: underline;
 }
 
 .linkName {
@@ -194,6 +190,11 @@ input:checked + .slider::before {
   font-size: 11px;
   color: var(--muted);
   margin-top: 1px;
+}
+
+.linkHint strong {
+  color: var(--fg);
+  font-weight: 600;
 }
 
 footer {
