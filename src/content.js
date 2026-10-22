@@ -260,7 +260,40 @@
   // sentences, so on hover we fetch the live page and upgrade the tooltip
   // text in place; if the page doesn't exist (wrong slug guess, item not on
   // tlidb, network error) we just keep the static translation already shown.
-  const liveTooltipCache = new Map(); // slug -> Promise<ParsedCard|null>
+  const livePageCache = new Map(); // slug -> Promise<html|null>
+
+  // tliherorank.com ships its own name -> tlidb URL index (the same data it
+  // builds its TLIDB links from). Its URLs are exact, including cases the
+  // slug guess below can't reproduce: renamed entries ("Splitting Lightning
+  // Bolt" -> Forking_Thunder) and hero trait talent nodes, which have no page
+  // of their own and point at their parent trait's page instead.
+  let siteReferencePromise = null;
+
+  function loadSiteReference() {
+    if (!siteReferencePromise) {
+      siteReferencePromise = (async () => {
+        const manifest = await fetch("/data/tlidb_reference/manifest.json", { cache: "no-store" }).then((r) => r.json());
+        const file = String(manifest?.reference_file || "").trim();
+        if (!file) return new Map();
+        const reference = await fetch(`/data/tlidb_reference/${file}`).then((r) => r.json());
+        const urls = new Map();
+        for (const category of Object.values(reference?.records || {})) {
+          for (const record of Object.values(category || {})) {
+            if (record?.name && record.tlidb_url) urls.set(normalize(record.name), record.tlidb_url);
+          }
+        }
+        return urls;
+      })().catch(() => new Map());
+    }
+    return siteReferencePromise;
+  }
+
+  async function slugForLiveName(englishName) {
+    const urls = await loadSiteReference();
+    const url = urls.get(normalize(englishName));
+    if (url && url.startsWith(TLIDB_EN_PREFIX)) return url.slice(TLIDB_EN_PREFIX.length);
+    return slugifyForTlidb(englishName);
+  }
 
   // tlidb.com drops apostrophes, colons and parentheses from page slugs, e.g.
   // "Modularization: Shared Burden (Magnificent)" ->
@@ -283,7 +316,24 @@
         if (prev) return prev;
       }
     }
-    return (lines[0] || "").trim() || null;
+    // Other filter checkboxes lead with "Include <Name>".
+    return (lines[0] || "").trim().replace(/^Include\s+/, "") || null;
+  }
+
+  // Hero trait talent nodes (e.g. "I Need Not Lift a Finger") are one block
+  // among ~11 on their parent trait's page (e.g.
+  // https://tlidb.com/ko/The_Ultimate_One): a .fw-bold name followed by
+  // per-level tiers. tliherorank.com's tooltip shows the level-1 effects, so
+  // take the first tier.
+  function parseTraitNode(doc, koName) {
+    const nameEl = [...doc.querySelectorAll(".fw-bold")].find((el) => normalize(el.textContent) === koName);
+    const block = nameEl?.parentElement;
+    if (!block) return null;
+    const affix =
+      block.querySelector('[data-tier-content] [data-src="affix"]') || block.querySelector('[data-src="affix"]');
+    const description = affix?.textContent?.trim().replace(/\s*\n\s*/g, "\n") || null;
+    if (!description) return null;
+    return { name: koName, tags: [], extra: [], description };
   }
 
   // tlidb.com uses different card markup per entity type. Each parser here
@@ -335,11 +385,18 @@
     },
   ];
 
-  function parseTlidbCard(html) {
+  // `nodeName` (the Korean name) is set when the page is some *other* entry's
+  // page - e.g. a trait node's parent trait - so look for that node's block
+  // before falling back to the page's own main card.
+  function parseTlidbCard(html, nodeName) {
     // Swap <br> for a literal newline before parsing so textContent keeps
     // the line breaks from multi-sentence descriptions.
     const withBreaks = html.replace(/<br\s*\/?>/gi, "\n");
     const doc = new DOMParser().parseFromString(withBreaks, "text/html");
+    if (nodeName) {
+      const node = parseTraitNode(doc, nodeName);
+      if (node) return node;
+    }
     for (const parse of CARD_PARSERS) {
       const result = parse(doc);
       if (result) return result;
@@ -357,10 +414,8 @@
     return lines.join("\n");
   }
 
-  function fetchLiveTooltip(englishName) {
-    const slug = slugifyForTlidb(englishName);
-    if (!slug) return Promise.resolve(null);
-    if (liveTooltipCache.has(slug)) return liveTooltipCache.get(slug);
+  function fetchLivePage(slug) {
+    if (livePageCache.has(slug)) return livePageCache.get(slug);
 
     // The actual request runs in the background service worker - a content
     // script's fetch() is still bound by the *page's* CORS policy even with
@@ -368,13 +423,22 @@
     // get blocked.
     const promise = chrome.runtime
       .sendMessage({ type: "fetchTlidb", lang: "ko", slug })
-      .then((res) => (res?.ok && res.html ? parseTlidbCard(res.html) : null))
+      .then((res) => (res?.ok && res.html ? res.html : null))
       .catch(() => null);
-    liveTooltipCache.set(slug, promise);
+    livePageCache.set(slug, promise);
     return promise;
   }
 
-  function setupLiveTooltipEnrichment() {
+  async function fetchLiveTooltip(englishName, dictionary) {
+    const slug = await slugForLiveName(englishName);
+    if (!slug) return null;
+    const html = await fetchLivePage(slug);
+    if (!html) return null;
+    const ownPage = slug === slugifyForTlidb(englishName);
+    return parseTlidbCard(html, ownPage ? null : dictionary.map.get(normalize(englishName)));
+  }
+
+  function setupLiveTooltipEnrichment(dictionary) {
     document.addEventListener(
       "mouseover",
       (event) => {
@@ -382,7 +446,7 @@
         if (!el || el.dataset.tliLiveDone) return;
         el.dataset.tliLiveDone = "1";
 
-        fetchLiveTooltip(el.dataset.tliLiveName).then((card) => {
+        fetchLiveTooltip(el.dataset.tliLiveName, dictionary).then((card) => {
           if (!card) return;
           const newTitle = buildTooltipFromCard(card);
           if (el.getAttribute("title")) el.setAttribute("title", newTitle);
@@ -402,6 +466,7 @@
     if (root.nodeType === Node.ELEMENT_NODE) {
       if (SKIP_TAGS.has(root.tagName)) return;
       translateAttributes(root, dictionary);
+      if (root.tagName === "A") localizeTlidbLink(root);
     }
 
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -423,6 +488,21 @@
         ? root.querySelectorAll("[placeholder],[aria-label],[title]")
         : [];
       for (const el of elements) translateAttributes(el, dictionary);
+
+      const links = root.querySelectorAll ? root.querySelectorAll(`a[href^="${TLIDB_EN_PREFIX}"]`) : [];
+      for (const link of links) localizeTlidbLink(link);
+    }
+  }
+
+  // tliherorank.com links names to tlidb.com's English pages (its reference
+  // data only stores /en/ URLs); tlidb uses the same slugs per language, so
+  // point them at the Korean page instead.
+  const TLIDB_EN_PREFIX = "https://tlidb.com/en/";
+
+  function localizeTlidbLink(link) {
+    const href = link.getAttribute("href");
+    if (href && href.startsWith(TLIDB_EN_PREFIX)) {
+      link.setAttribute("href", `https://tlidb.com/ko/${href.slice(TLIDB_EN_PREFIX.length)}`);
     }
   }
 
@@ -467,7 +547,7 @@
     const dictionary = await loadDictionary();
     walk(document.body, dictionary);
     observe(dictionary);
-    setupLiveTooltipEnrichment();
+    setupLiveTooltipEnrichment(dictionary);
   }
 
   main().catch((err) => console.error("[TLI 도구 - tliherorank 번역]", err));
