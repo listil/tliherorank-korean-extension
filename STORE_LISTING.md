@@ -120,7 +120,16 @@ Torchlight Infinite(토치라이트: 인피니트) 한국 유저에게 필요한
 
 ## 스크린샷
 
-`docs/store-screenshot-1.png` (1280×800) 준비되어 있습니다. 필요하면
+스토어 규격(1280×800, 투명도 없는 JPEG/24비트 PNG, 최대 5장)에 맞춘 파일이
+`docs/`에 준비되어 있습니다. 업로드 순서 추천:
+
+1. `store-screenshot-overview.jpg` — 기능 3가지를 한 장에 모은 요약
+2. `store-screenshot-ranking.jpg` — 한국어로 번역된 tliherorank.com 랭킹 (타르타로스 시즌)
+3. `store-screenshot-popup.jpg` — 팝업(번역 On/Off, 사전 항목 수, 탭별 바로가기)
+4. `store-screenshot-vorax.jpg` — VoraxRoom 카드 추천 패널
+5. `store-screenshot-1.png` — 이전 버전 스크린샷 (필요 없으면 생략)
+
+필요하면
 `node scripts/verify-extension.mjs`를 실행하거나 아래 방법으로 추가 스크린샷을
 직접 찍을 수 있습니다:
 
