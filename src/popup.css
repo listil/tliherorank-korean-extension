@@ -31,26 +31,6 @@ header h1 {
   color: var(--muted);
 }
 
-.toggleRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.toggleLabel {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.hint {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
 .switch {
   position: relative;
   display: inline-block;
@@ -96,6 +76,7 @@ input:checked + .slider::before {
 
 .info {
   padding: 10px 0;
+  border-top: 1px solid var(--border);
 }
 
 .infoRow {
@@ -178,6 +159,29 @@ input:checked + .slider::before {
 
 .linkRow:hover {
   background: #1e2740;
+}
+
+/* A row that pairs a link with the translation switch; the switch sits beside
+   the <a> rather than inside it, since a control nested in a link would also
+   trigger navigation. */
+.linkRowWithToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 10px;
+  border-radius: 8px;
+  background: #171d2d;
+  transition: background 0.15s ease;
+}
+
+.linkRowWithToggle:hover {
+  background: #1e2740;
+}
+
+.linkRowWithToggle .linkRow {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
 }
 
 .linkName {

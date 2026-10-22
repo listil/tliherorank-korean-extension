@@ -31,7 +31,8 @@ async function fetchCoreTalentLines(lang, tabTarget) {
       timeout: 45000,
     });
     await page.waitForTimeout(1500);
-    await page.click(`[data-bs-target="${tabTarget}"]`);
+    // tlidb.com's tab links have used both data-bs-target and plain href for this.
+    await page.click(`[data-bs-target="${tabTarget}"], a[data-bs-toggle="tab"][href="${tabTarget}"]`);
     await page.waitForTimeout(1500);
     const lines = await page.evaluate(() =>
       document.body.innerText.split("\n").map((l) => l.trim()).filter(Boolean)
