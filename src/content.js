@@ -182,7 +182,12 @@
     return null;
   }
 
+  // Player names are free text, so a name that happens to equal a dictionary
+  // key (e.g. a player called "Charge" or "Ember") must never be translated.
+  const PLAYER_NAME_SELECTOR = ".playerName, .homeFeatPlayer, .heroCharacterName";
+
   function shouldSkip(element) {
+    if (element?.closest?.(PLAYER_NAME_SELECTOR)) return true;
     let node = element;
     while (node) {
       if (node.nodeType === Node.ELEMENT_NODE && SKIP_TAGS.has(node.tagName)) return true;
@@ -239,7 +244,14 @@
       // overwrite it with the Korean text.
       if (attr === "title" && value.includes("\n") && !element.dataset.tliLiveName) {
         const liveName = extractLiveName(value);
-        if (liveName) element.dataset.tliLiveName = liveName;
+        if (liveName) {
+          element.dataset.tliLiveName = liveName;
+          // Sidebar filter buttons say which reference category they belong
+          // to (e.g. "hero_characters"), which disambiguates names shared
+          // across categories (see resolveLiveTarget).
+          const facetKey = element.closest("[data-facet-key]")?.dataset.facetKey;
+          if (facetKey) element.dataset.tliLiveCategory = facetKey;
+        }
       }
 
       const translation = translateAttributeValue(value, dictionary);
@@ -260,13 +272,13 @@
   // sentences, so on hover we fetch the live page and upgrade the tooltip
   // text in place; if the page doesn't exist (wrong slug guess, item not on
   // tlidb, network error) we just keep the static translation already shown.
-  const livePageCache = new Map(); // slug -> Promise<html|null>
+  const livePageCache = new Map(); // "<lang>/<slug>" -> Promise<html|null>
 
   // tliherorank.com ships its own name -> tlidb URL index (the same data it
-  // builds its TLIDB links from). Its URLs are exact, including cases the
-  // slug guess below can't reproduce: renamed entries ("Splitting Lightning
-  // Bolt" -> Forking_Thunder) and hero trait talent nodes, which have no page
-  // of their own and point at their parent trait's page instead.
+  // builds its TLIDB links from). Its URLs cover cases the slug guess below
+  // can't reproduce: renamed entries ("Splitting Lightning Bolt" ->
+  // Forking_Thunder) and hero trait talent nodes, which have no page of their
+  // own and point at their parent trait's page instead.
   let siteReferencePromise = null;
 
   function loadSiteReference() {
@@ -276,23 +288,49 @@
         const file = String(manifest?.reference_file || "").trim();
         if (!file) return new Map();
         const reference = await fetch(`/data/tlidb_reference/${file}`).then((r) => r.json());
-        const urls = new Map();
-        for (const category of Object.values(reference?.records || {})) {
-          for (const record of Object.values(category || {})) {
-            if (record?.name && record.tlidb_url) urls.set(normalize(record.name), record.tlidb_url);
+        // The same name can appear in several categories (e.g. "Last Stand" is
+        // a unique item, a core talent and a trait node), so keep them all.
+        const records = new Map(); // name -> [{ slug, category, isTraitNode }]
+        for (const [category, byName] of Object.entries(reference?.records || {})) {
+          for (const record of Object.values(byName || {})) {
+            const url = String(record?.tlidb_url || "");
+            // Listing anchors like "Talent#CoreTalentNode" aren't a page for
+            // this entry; the slug guess finds those (e.g. /ko/Gale).
+            if (!record?.name || !url.startsWith(TLIDB_EN_PREFIX) || url.includes("#")) continue;
+            const key = normalize(record.name);
+            if (!records.has(key)) records.set(key, []);
+            records.get(key).push({
+              slug: url.slice(TLIDB_EN_PREFIX.length),
+              category,
+              isTraitNode: category === "hero_characters" && Boolean(record.parent) && record.parent !== record.name,
+            });
           }
         }
-        return urls;
-      })().catch(() => new Map());
+        return records;
+      })().catch(() => {
+        // Retry on a later hover rather than staying on the slug guess for
+        // the rest of the session after one transient failure.
+        siteReferencePromise = null;
+        return new Map();
+      });
     }
     return siteReferencePromise;
   }
 
-  async function slugForLiveName(englishName) {
-    const urls = await loadSiteReference();
-    const url = urls.get(normalize(englishName));
-    if (url && url.startsWith(TLIDB_EN_PREFIX)) return url.slice(TLIDB_EN_PREFIX.length);
-    return slugifyForTlidb(englishName);
+  // Picks which tlidb page to read for a tooltip and how: the entry's own
+  // page (parsed with CARD_PARSERS), or its parent trait page (parsed for
+  // just that node's block).
+  async function resolveLiveTarget(englishName, category) {
+    const guess = slugifyForTlidb(englishName);
+    const all = (await loadSiteReference()).get(normalize(englishName)) || [];
+    const inCategory = category ? all.filter((r) => r.category === category) : [];
+    const records = inCategory.length ? inCategory : all;
+
+    if (records.some((r) => r.slug === guess)) return { slug: guess, traitNode: false };
+    const node = records.find((r) => r.isTraitNode);
+    if (node) return { slug: node.slug, traitNode: true };
+    if (records.length) return { slug: records[0].slug, traitNode: false };
+    return { slug: guess, traitNode: false };
   }
 
   // tlidb.com drops apostrophes, colons and parentheses from page slugs, e.g.
@@ -322,18 +360,21 @@
 
   // Hero trait talent nodes (e.g. "I Need Not Lift a Finger") are one block
   // among ~11 on their parent trait's page (e.g.
-  // https://tlidb.com/ko/The_Ultimate_One): a .fw-bold name followed by
-  // per-level tiers. tliherorank.com's tooltip shows the level-1 effects, so
-  // take the first tier.
-  function parseTraitNode(doc, koName) {
-    const nameEl = [...doc.querySelectorAll(".fw-bold")].find((el) => normalize(el.textContent) === koName);
-    const block = nameEl?.parentElement;
-    if (!block) return null;
+  // https://tlidb.com/ko/The_Ultimate_One): a .fw-bold name (with a data-id
+  // shared across languages) followed by per-level tiers. tliherorank.com's
+  // tooltip shows the level-1 effects, so take the first tier.
+  function findTraitNodeNameEl(doc, name) {
+    const wanted = normalize(name);
+    return [...doc.querySelectorAll(".fw-bold[data-id]")].find((el) => normalize(el.textContent) === wanted) || null;
+  }
+
+  function traitNodeCard(nameEl) {
+    const block = nameEl.parentElement;
     const affix =
-      block.querySelector('[data-tier-content] [data-src="affix"]') || block.querySelector('[data-src="affix"]');
+      block?.querySelector('[data-tier-content] [data-src="affix"]') || block?.querySelector('[data-src="affix"]');
     const description = affix?.textContent?.trim().replace(/\s*\n\s*/g, "\n") || null;
     if (!description) return null;
-    return { name: koName, tags: [], extra: [], description };
+    return { name: normalize(nameEl.textContent), tags: [], extra: [], description };
   }
 
   // tlidb.com uses different card markup per entity type. Each parser here
@@ -385,18 +426,15 @@
     },
   ];
 
-  // `nodeName` (the Korean name) is set when the page is some *other* entry's
-  // page - e.g. a trait node's parent trait - so look for that node's block
-  // before falling back to the page's own main card.
-  function parseTlidbCard(html, nodeName) {
+  function parseTlidbHtml(html) {
     // Swap <br> for a literal newline before parsing so textContent keeps
     // the line breaks from multi-sentence descriptions.
     const withBreaks = html.replace(/<br\s*\/?>/gi, "\n");
-    const doc = new DOMParser().parseFromString(withBreaks, "text/html");
-    if (nodeName) {
-      const node = parseTraitNode(doc, nodeName);
-      if (node) return node;
-    }
+    return new DOMParser().parseFromString(withBreaks, "text/html");
+  }
+
+  function parseTlidbCard(html) {
+    const doc = parseTlidbHtml(html);
     for (const parse of CARD_PARSERS) {
       const result = parse(doc);
       if (result) return result;
@@ -414,28 +452,45 @@
     return lines.join("\n");
   }
 
-  function fetchLivePage(slug) {
-    if (livePageCache.has(slug)) return livePageCache.get(slug);
+  function fetchLivePage(lang, slug) {
+    const key = `${lang}/${slug}`;
+    if (livePageCache.has(key)) return livePageCache.get(key);
 
     // The actual request runs in the background service worker - a content
     // script's fetch() is still bound by the *page's* CORS policy even with
     // host_permissions granted, so a direct cross-origin fetch() here would
     // get blocked.
     const promise = chrome.runtime
-      .sendMessage({ type: "fetchTlidb", lang: "ko", slug })
+      .sendMessage({ type: "fetchTlidb", lang, slug })
       .then((res) => (res?.ok && res.html ? res.html : null))
       .catch(() => null);
-    livePageCache.set(slug, promise);
+    livePageCache.set(key, promise);
     return promise;
   }
 
-  async function fetchLiveTooltip(englishName, dictionary) {
-    const slug = await slugForLiveName(englishName);
+  // Only ever returns the node's own block - never the parent trait's main
+  // card - so a node we can't locate keeps its static translation.
+  async function fetchTraitNodeCard(slug, englishName, koName) {
+    const koHtml = await fetchLivePage("ko", slug);
+    if (!koHtml) return null;
+    const koDoc = parseTlidbHtml(koHtml);
+    let nameEl = koName ? findTraitNodeNameEl(koDoc, koName) : null;
+    if (!nameEl) {
+      // Not in our dictionary, or spelled differently there: find the node on
+      // the English page and match it across languages by data-id.
+      const enHtml = await fetchLivePage("en", slug);
+      const id = enHtml ? findTraitNodeNameEl(parseTlidbHtml(enHtml), englishName)?.dataset.id : null;
+      if (id) nameEl = koDoc.querySelector(`.fw-bold[data-id="${CSS.escape(id)}"]`);
+    }
+    return nameEl ? traitNodeCard(nameEl) : null;
+  }
+
+  async function fetchLiveTooltip(englishName, category, dictionary) {
+    const { slug, traitNode } = await resolveLiveTarget(englishName, category);
     if (!slug) return null;
-    const html = await fetchLivePage(slug);
-    if (!html) return null;
-    const ownPage = slug === slugifyForTlidb(englishName);
-    return parseTlidbCard(html, ownPage ? null : dictionary.map.get(normalize(englishName)));
+    if (traitNode) return fetchTraitNodeCard(slug, englishName, dictionary.map.get(normalize(englishName)));
+    const html = await fetchLivePage("ko", slug);
+    return html ? parseTlidbCard(html) : null;
   }
 
   function setupLiveTooltipEnrichment(dictionary) {
@@ -446,7 +501,7 @@
         if (!el || el.dataset.tliLiveDone) return;
         el.dataset.tliLiveDone = "1";
 
-        fetchLiveTooltip(el.dataset.tliLiveName, dictionary).then((card) => {
+        fetchLiveTooltip(el.dataset.tliLiveName, el.dataset.tliLiveCategory, dictionary).then((card) => {
           if (!card) return;
           const newTitle = buildTooltipFromCard(card);
           if (el.getAttribute("title")) el.setAttribute("title", newTitle);
