@@ -262,8 +262,12 @@
   // tlidb, network error) we just keep the static translation already shown.
   const liveTooltipCache = new Map(); // slug -> Promise<ParsedCard|null>
 
+  // tlidb.com drops apostrophes, colons and parentheses from page slugs, e.g.
+  // "Modularization: Shared Burden (Magnificent)" ->
+  // "Modularization_Shared_Burden_Magnificent" (matches autocomplete_en.json's
+  // `value` for all but ~10 of ~4800 entries).
   function slugifyForTlidb(name) {
-    return name.replace(/'/g, "").trim().replace(/\s+/g, "_");
+    return name.replace(/['’:()]/g, "").trim().replace(/\s+/g, "_");
   }
 
   // Most multi-line tooltips start directly with the item's name (skills,
